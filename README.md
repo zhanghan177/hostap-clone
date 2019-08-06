@@ -3,7 +3,7 @@
 Install dependency from source link: https://packages.qa.debian.org/libn/libnl3.html.
 ```bash
 sudo apt update
-sudo apt install libnl-3-dev libnl-genl-3-dev
+sudo apt install libnl-3-dev libnl-genl-3-dev libssl-dev
 ```
 
 wpa_supplicant and hostapd
