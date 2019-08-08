@@ -423,8 +423,9 @@ static void vlan_bridge_name(char *br_name, struct hostapd_data *hapd,
 {
 	char *tagged_interface = hapd->conf->ssid.vlan_tagged_interface;
 	int ret;
+    int vlan_naming = hapd->conf->ssid.vlan_naming;
 
-	if (vlan->bridge[0]) {
+    if (vlan->bridge[0]) {
 		os_strlcpy(br_name, vlan->bridge, IFNAMSIZ);
 		ret = 0;
 	} else if (hapd->conf->vlan_bridge[0]) {
