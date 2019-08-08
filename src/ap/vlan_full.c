@@ -392,7 +392,8 @@ static void vlan_newlink_tagged(int vlan_naming, const char *tagged_interface,
 	int clean;
 	int ret;
 
-	if (vlan_naming == DYNAMIC_VLAN_NAMING_WITH_DEVICE)
+	if (vlan_naming == DYNAMIC_VLAN_NAMING_WITH_DEVICE ||
+	    vlan_naming == DYNAMIC_VLAN_NAMING_WITH_DEVICE_STATIC_BRIDGE)
 		ret = os_snprintf(vlan_ifname, sizeof(vlan_ifname), "%s.%d",
 				  tagged_interface, vid);
 	else
@@ -427,8 +428,13 @@ static void vlan_bridge_name(char *br_name, struct hostapd_data *hapd,
 		os_strlcpy(br_name, vlan->bridge, IFNAMSIZ);
 		ret = 0;
 	} else if (hapd->conf->vlan_bridge[0]) {
-		ret = os_snprintf(br_name, IFNAMSIZ, "%s%d",
-				  hapd->conf->vlan_bridge, vid);
+        if (vlan_naming == DYNAMIC_VLAN_NAMING_WITH_DEVICE_STATIC_BRIDGE) {
+            os_snprintf(br_name, sizeof(br_name), "%s",
+                    hapd->conf->vlan_bridge);
+        } else {
+            ret = os_snprintf(br_name, IFNAMSIZ, "%s%d",
+                              hapd->conf->vlan_bridge, vid);
+        }
 	} else if (tagged_interface) {
 		ret = os_snprintf(br_name, IFNAMSIZ, "br%s.%d",
 				  tagged_interface, vid);
@@ -518,7 +524,8 @@ static void vlan_dellink_tagged(int vlan_naming, const char *tagged_interface,
 	int clean;
 	int ret;
 
-	if (vlan_naming == DYNAMIC_VLAN_NAMING_WITH_DEVICE)
+	if (vlan_naming == DYNAMIC_VLAN_NAMING_WITH_DEVICE ||
+	    vlan_naming == DYNAMIC_VLAN_NAMING_WITH_DEVICE_STATIC_BRIDGE)
 		ret = os_snprintf(vlan_ifname, sizeof(vlan_ifname), "%s.%d",
 				  tagged_interface, vid);
 	else
@@ -755,8 +762,8 @@ full_dynamic_vlan_init(struct hostapd_data *hapd)
 	if (priv == NULL)
 		return NULL;
 
-	vlan_set_name_type(hapd->conf->ssid.vlan_naming ==
-			   DYNAMIC_VLAN_NAMING_WITH_DEVICE ?
+	vlan_set_name_type((hapd->conf->ssid.vlan_naming == DYNAMIC_VLAN_NAMING_WITH_DEVICE ||
+	hapd->conf->ssid.vlan_naming == DYNAMIC_VLAN_NAMING_WITH_DEVICE_STATIC_BRIDGE) ?
 			   VLAN_NAME_TYPE_RAW_PLUS_VID_NO_PAD :
 			   VLAN_NAME_TYPE_PLUS_VID_NO_PAD);
 
